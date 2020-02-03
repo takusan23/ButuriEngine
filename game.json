@@ -54,6 +54,18 @@
 			"width": 100,
 			"height": 95,
 			"path": "image/pentagon.png"
+		},
+		"inu": {
+			"type": "image",
+			"width": 100,
+			"height": 83,
+			"path": "image/inu.png"
+		},
+		"old_toomo": {
+			"type": "image",
+			"width": 100,
+			"height": 81,
+			"path": "image/old_toomo.png"
 		}
 	},
 	"environment": {
