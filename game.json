@@ -66,6 +66,12 @@
 			"width": 100,
 			"height": 81,
 			"path": "image/old_toomo.png"
+		},
+		"n_kou": {
+			"type": "image",
+			"width": 50,
+			"height": 50,
+			"path": "image/n_kou.png"
 		}
 	},
 	"environment": {

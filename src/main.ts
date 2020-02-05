@@ -4,10 +4,13 @@ import * as b2 from "@akashic-extension/akashic-box2d";
 declare const window: RPGAtsumaruWindow;
 
 export function main(param: GameMainParameterObject): void {
+
+	const toomoTumiList: g.Sprite[] = [];
+
 	const scene = new g.Scene({
 		game: g.game,
 		// このシーンで利用するアセットのIDを列挙し、シーンに通知します
-		assetIds: ["player", "shot", "se", "karaoke", "toomo", "inu"]
+		assetIds: ["player", "shot", "se", "karaoke", "toomo", "inu", "n_kou"]
 	});
 	let time = 60; // 制限時間
 	if (param.sessionParameter.totalTimeLimit) {
@@ -113,8 +116,17 @@ export function main(param: GameMainParameterObject): void {
 				box.vec2(-7, -39.5)
 			]
 		};
+		const nKou: FaceObj = {
+			assetSrc: "n_kou",
+			atariHanteiList: [
+				box.vec2(25, -25),
+				box.vec2(25, 25),
+				box.vec2(-25, 25),
+				box.vec2(-25, -25)
+			]
+		};
 		// 生成する物体の配列
-		const faceObjList: FaceObj[] = [defultToomo, karaoke]
+		const faceObjList: FaceObj[] = [defultToomo, karaoke, nKou];
 
 		// 画面をタッチしたとき、SEを鳴らします
 		scene.pointDownCapture.add((event) => {
@@ -122,12 +134,29 @@ export function main(param: GameMainParameterObject): void {
 			const yPos = event.point.y;
 
 			// プレイヤーを生成します
-			const random = g.game.random.get(0, faceObjList.length - 1)
-			createFace(faceObjList[random], xPos, yPos);
+			const random = g.game.random.get(0, faceObjList.length - 1);
+			const sprite = createFace(faceObjList[random], xPos, yPos);
+			toomoTumiList.push(sprite);
+		});
+
+		const camera = new g.Camera2D({ game: g.game });
+		g.game.focusingCamera = camera;
+		g.game.modified = true;
+
+		scene.update.add(() => {
+			toomoTumiList.sort((a, b) => {
+				if (a.y < b.y) return -1;
+				if (a.y > b.y) return 1;
+				return 0;
+			});
+			if (toomoTumiList[0].y <= 0) {
+				camera.y = toomoTumiList[0].y - (g.game.height / 2);
+				camera.modified();
+			}
 		});
 
 		/** 物体作成関数 */
-		const createFace = (obj: FaceObj, xPos: number, yPos: number) => {
+		const createFace = (obj: FaceObj, xPos: number, yPos: number): g.Sprite => {
 			const entity = new g.Sprite({
 				scene: scene,
 				src: scene.assets[obj.assetSrc],
@@ -149,6 +178,7 @@ export function main(param: GameMainParameterObject): void {
 				type: b2.BodyType.Dynamic
 			});
 			box.createBody(entity, entityDef, entityFixDef);
+			return entity;
 		};
 
 		const updateHandler = () => {
